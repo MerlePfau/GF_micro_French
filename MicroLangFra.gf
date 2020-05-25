@@ -11,7 +11,7 @@ concrete MicroLangFra of MicroLang = open MicroResFra, Prelude in {
     S  = {s : Str} ;
     VP = {verb : Verb ; compl : Str} ; ---s special case of Mini
     Comp = {s : Str} ;
-    AP = Adjective ;
+    AP = A ;
     CN = Noun ;
     NP = {s : Case => Str ; a : Agreement} ;
     Pron = {s : Case => Str ; a : Agreement} ;
@@ -19,7 +19,7 @@ concrete MicroLangFra of MicroLang = open MicroResFra, Prelude in {
     Prep = {s : Str} ;
     V = Verb ;
     V2 = Verb2 ;
-    A = Adjective ;
+    A = {s : Gender => Number => Str} ;
     N = Noun ;
     Adv = {s : Str} ;
 

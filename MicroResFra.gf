@@ -9,7 +9,7 @@ param
   Agreement = Agr Number ; ---s Person to be added
 
   -- all forms of normal Eng verbs, although not yet used in MiniGrammar
-  -- VForm = Inf | PresSg3 | Past | PastPart | PresPart ; 
+  VForm = Inf | PresSg3 | Past | PastPart | PresPart ; 
 
   Person = P1 | P2 | P3 ;
 
@@ -29,16 +29,34 @@ oper
     _                          => regNoun sg
     } ;
 
-  Adjective : Type = {s : Str} ;
+  Adjective : Type = {s : Gender => Number => Str} ;
 
-  Verb : Type = {s : Person => Number => Str} ;
-
-  mkVerb : (p1sg,p1pl,p2sg,p2pl,p3sg,p3pl : Str) -> Verb
-    = \p1sg,p1pl,p2sg,p2pl,p3sg,p3pl -> {
+  mkAdj : (ASgMasc,ASgFem,APlMasc,APlFem : Str) -> Adjective
+    = \ASgMasc,ASgFem,APlMasc,APlFem -> {
     s = table {
-      P1 => table { Sg => p1sg ; Pl => p1pl } ;
-      P2 => table { Sg => p2sg ; Pl => p2pl } ;
-      P3 => table { Sg => p3sg ; Pl => p3pl } 
+      Masc => table { Sg => ASgMasc ; Pl => APlMasc } ;
+      Fem  => table { Sg => ASgFem ; Pl => APlFem } 
+      }
+    } ;
+
+  regAdj : (ASgMasc : Str) -> Adjective = \sg ->
+    mkAdj sg (sg + "e") (sg + "s") (sg + "es") ;
+
+  smartAdj : Str -> Adjective = \sg -> case sg of {
+    x + "n"			=> mkAdj sg (x + "nne") (x + "ns") (x + "nnes") ;
+    _ 				=> regAdj sg
+    } ;
+
+  Verb : Type = {s : VForm => Str} ;
+
+  mkVerb : (inf,pres,past,pastpart,prespart : Str) -> Verb
+    = \inf,pres,past,pastpart,prespart -> {
+    s = table {
+      Inf => inf ;
+      PresSg3 => pres ;
+      Past => past ;
+      PastPart => pastpart ;
+      PresPart => prespart
       }
     } ;
 
