@@ -8,9 +8,6 @@ param
 
   Agreement = Agr Number ; ---s Person to be added
 
-  -- all forms of normal Eng verbs, although not yet used in MiniGrammar
-  VForm = Inf | PresSg3 | Past | PastPart | PresPart ; 
-
   Person = P1 | P2 | P3 ;
 
 oper
@@ -51,47 +48,77 @@ oper
     _ 				=> regAdj sg
     } ;
 
-  Verb : Type = {s : VForm => Str} ;
+  Verb : Type = {s : Person => Number => Str} ;
 
-  mkVerb : (inf,pres,past,pastpart,prespart : Str) -> Verb
-    = \inf,pres,past,pastpart,prespart -> {
+  mkVerb : (Inf,p1sg,p1pl,p2sg,p2pl,p3sg,p3pl : Str) -> Verb
+    = \Inf,p1sg,p1pl,p2sg,p2pl,p3sg,p3pl -> {
     s = table {
-      Inf => inf ;
-      PresSg3 => pres ;
-      Past => past ;
-      PastPart => pastpart ;
-      PresPart => prespart
+      P1 => table { Sg => p1sg ; Pl => p1pl } ;
+      P2 => table { Sg => p2sg ; Pl => p2pl } ;
+      P3 => table { Sg => p3sg ; Pl => p3pl } 
       }
     } ;
 
-  regVerb : (inf : Str) -> Verb = \inf ->
-    mkVerb inf (inf + "s") (inf + "ed") (inf + "ed") (inf + "ing") ;
+  --regVerb : (inf : Str) -> Verb = \inf ->
+    --mkVerb inf (inf + "s") (inf + "ed") (inf + "ed") (inf + "ing") ;
 
   -- regular verbs with predictable variations
-  smartVerb : Str -> Verb = \inf -> case inf of {
-     pl  +  ("a"|"e"|"i"|"o"|"u") + "y" => regVerb inf ;
-     cr  +  "y" =>  mkVerb inf (cr + "ies") (cr + "ied") (cr + "ied") (inf + "ing") ;
-     lov + "e"  => mkVerb inf (inf + "s") (lov + "ed") (lov + "ed") (lov + "ing") ;
-     kis + ("s"|"sh"|"x"|"o") => mkVerb inf (inf + "es") (inf + "ed") (inf + "ed") (inf + "ing") ;
-     _ => regVerb inf
+  smartVerb : Str -> Verb = \stem -> case stem of {
+     stem + "eter" 		=> verb4eter stem ;
+     stem + "er" 			=> verb1er stem ;
+     stem + "ir"			=> verb2ir stem ; 
+     stem + "re"			=> verb3re stem 
+--     _ => regVerb inf
      } ;
 
+  verb1er: (stem : Str) -> Verb = \stem -> {
+    s = table {
+      P1 => table { Sg => stem + "e" ; Pl => stem + "ons" } ;
+      P2 => table { Sg => stem + "es" ; Pl => stem + "ez" } ;
+      P3 => table { Sg => stem + "e" ; Pl => stem + "ent" } 
+      }
+    } ;
+
+  verb2ir: (stem : Str) -> Verb = \stem -> {
+    s = table {
+      P1 => table { Sg => stem + "s" ; Pl => stem + "ons" } ;
+      P2 => table { Sg => stem + "s" ; Pl => stem + "ez" } ;
+      P3 => table { Sg => stem + "t" ; Pl => stem + "ent" } 
+      }
+    } ;
+
+  verb3re: (stem : Str) -> Verb = \stem -> {
+    s = table {
+      P1 => table { Sg => stem + "s" ; Pl => stem + "ons" } ;
+      P2 => table { Sg => stem + "s" ; Pl => stem + "ez" } ;
+      P3 => table { Sg => stem + "" ; Pl => stem + "ent" } 
+      }
+    } ;
+
+  verb4eter: (stem : Str) -> Verb = \stem -> {
+    s = table {
+      P1 => table { Sg => stem + "ète" ; Pl => stem + "ètons" } ;
+      P2 => table { Sg => stem + "ètes" ; Pl => stem + "ètez" } ;
+      P3 => table { Sg => stem + "ète" ; Pl => stem + "ètent" } 
+      }
+    } ;
+
   -- normal irregular verbs e.g. drink,drank,drunk
-  irregVerb : (inf,past,pastpart : Str) -> Verb =
-    \inf,past,pastpart ->
-      let verb = smartVerb inf
-      in mkVerb inf (verb.s ! PresSg3) past pastpart (verb.s ! PresPart) ;   
+  -- irregVerb : (inf,past,pastpart : Str) -> Verb =
+  --  \inf,past,pastpart ->
+  --    let verb = smartVerb inf
+  --    in mkVerb inf (verb.s ! PresSg3) past pastpart (verb.s ! PresPart) ;   
 
   -- two-place verb with "case" as preposition; for transitive verbs, c=[]
   Verb2 : Type = Verb ** {c : Str} ;
 
-  be_Verb : Verb = mkVerb "are" "is" "was" "been" "being" ; ---s to be generalized
+  be_Verb : Verb = mkVerb "être" "suis" "sommes" "es" "êtes" "est" "sont" ; ---s to be generalized
 
 
 ---s a very simplified verb agreement function for Micro
-  agr2vform : Agreement -> VForm = \a -> case a of {
-    Agr Sg => PresSg3 ;
-    Agr Pl => Inf
-    } ;
+  --agr2vform : Agreement -> VForm = \a -> case a of {
+    --Agr Sg => PresSg3 ;
+    --Agr Pl => Inf
+    --} ;
 
 }

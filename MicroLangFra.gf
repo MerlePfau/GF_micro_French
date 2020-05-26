@@ -28,7 +28,7 @@ concrete MicroLangFra of MicroLang = open MicroResFra, Prelude in {
     UttNP np = {s = np.s ! Acc} ;
 
     PredVPS np vp = {
-      s = np.s ! Nom ++ vp.verb.s ! agr2vform np.a ++ vp.compl
+      s = np.s ! Nom ++ vp.verb.s ! np.n ++ vp.compl ! np.g ! np.n
       } ;
       
     UseV v = {
@@ -66,7 +66,7 @@ concrete MicroLangFra of MicroLang = open MicroResFra, Prelude in {
     UseN n = n ;
     
     AdjCN ap cn = {
-      s = table {n => ap.s ++ cn.s ! n}
+      s = table {n => ap.s ! cn.n ! cn.g ++ cn.s ! n}
       } ;
 
     PositA a = a ;
@@ -110,8 +110,8 @@ lin boat_N = mkN "bateau" ;
 lin book_N = mkN "livre" ;
 lin boy_N = mkN "garçon" ;
 lin bread_N = mkN "pain" ;
-lin break_V2 = mkV2 (mkV "casser" "casse" "cassé") ;
-lin buy_V2 = mkV2 (mkV "acheter" "achète" "acheté") ;
+lin break_V2 = mkV2 (mkV "casser") ;
+lin buy_V2 = mkV2 (mkV "acheter") ;
 lin car_N = mkN "voiture" ;
 lin cat_N = mkN "chat" ;
 lin child_N = mkN "enfant" ;
@@ -125,9 +125,9 @@ lin computer_N = mkN "ordinateur" ;
 lin cow_N = mkN "vache" ;
 lin dirty_A = mkA "sale" ;
 lin dog_N = mkN "chien" ;
-lin drink_V2 = mkV2 (mkV "boire" "bois" "bu") ;
-lin eat_V2 = mkV2 (mkV "manger" "mange" "mangé") ;
-lin find_V2 = mkV2 (mkV "trouver" "trouve" "trouvé") ;
+lin drink_V2 = mkV2 (mkV "boire") ;
+lin eat_V2 = mkV2 (mkV "manger") ;
+lin find_V2 = mkV2 (mkV "trouver") ;
 lin fire_N = mkN "feu" ;
 lin fish_N = mkN "poisson" ;
 lin flower_N = mkN "fleur" ;
@@ -142,7 +142,7 @@ lin horse_N = mkN "cheval" ;
 lin hot_A = mkA "chaud" ;
 lin house_N = mkN "maison" ;
 -- lin john_PN = mkPN "John" ;
-lin jump_V = mkV "bondir" "bondis" "bondi" ;
+lin jump_V = mkV "bondir" ;
 lin kill_V2 = mkV2 "tuer" ;
 -- lin know_VS = mkVS (mkV "know" "knew" "known") ;
 lin language_N = mkN "langue" ;
@@ -156,23 +156,23 @@ lin now_Adv = mkAdv "maintenant" ;
 lin old_A = mkA "vieux" ;
 -- lin paris_PN = mkPN "Paris" ;
 lin play_V = mkV "jouer" ;
-lin read_V2 = mkV2 (mkV "lire" "read" "read") ;
+lin read_V2 = mkV2 (mkV "lire") ;
 lin ready_A = mkA "prêt" ;
 lin red_A = mkA "rouge" ;
 lin river_N = mkN "rivière" ;
-lin run_V = mkV "courir" "ran" "run" ;
+lin run_V = mkV "courir" ;
 lin sea_N = mkN "océan" ;
-lin see_V2 = mkV2 (mkV "voir" "saw" "seen") ;
+lin see_V2 = mkV2 (mkV "voir") ;
 lin ship_N = mkN "navire" ;
-lin sleep_V = mkV "dormir" "slept" "slept" ;
+lin sleep_V = mkV "dormir" ;
 lin small_A = mkA "petit" ;
 lin star_N = mkN "étoile" ;
-lin swim_V = mkV "nager" "swam" "swum" ;
-lin teach_V2 = mkV2 (mkV "teach" "taught" "taught") ;
+lin swim_V = mkV "nager";
+lin teach_V2 = mkV2 (mkV "apprendre") ;
 lin train_N = mkN "trainer" ;
 lin travel_V = mkV "voyager" ;
 lin tree_N = mkN "arbre" ;
-lin understand_V2 = mkV2 (mkV "entendre" "entend" "entendu" ) ;
+lin understand_V2 = mkV2 (mkV "entendre") ;
 lin wait_V2 = mkV2 "attendre" ;
 lin walk_V = mkV "marcher" ;
 lin warm_A = mkA "chaud" ;
@@ -196,14 +196,14 @@ oper
       = \sg,pl -> lin N (mkNoun sg pl) ;
     } ;
 
-  mkA : Str -> A
-    = \s -> lin A {s = s} ;
+  mkA : (ASgMasc,ASgFem,APlMasc,APlFem : Str) -> A 
+    = \s lin A (smartAdj s) ;
 
   mkV = overload {
-    mkV : (inf : Str) -> V  -- predictable verb, e.g. play-plays, cry-cries, wash-washes
-      = \s -> lin V (smartVerb s) ;
-    mkV : (inf,pres,part : Str) -> V  -- irregular verb, e.g. drink-drank-drunk
-      = \inf,pres,part -> lin V (irregVerb inf pres part) ;
+    mkV : (Inf,p1sg,p1pl,p2sg,p2pl,p3sg,p3pl : Str) -> V  -- predictable verb, e.g. play-plays, cry-cries, wash-washes
+      = \s -> lin V (smartVerb s) 
+   -- mkV : (inf,pres,part : Str) -> V  -- irregular verb, e.g. drink-drank-drunk
+   --   = \inf,pres,part -> lin V (irregVerb inf pres part) ;
     } ;
 
   mkV2 = overload {
