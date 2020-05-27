@@ -12,15 +12,15 @@ concrete MicroLangFra of MicroLang = open MicroResFra, Prelude in {
     VP = {verb : Verb ; compl : Str} ; ---s special case of Mini
     Comp = {s : Str} ;
     AP = A ;
-    CN = Noun ;
-    NP = {s : Case => Str ; a : Agreement} ;
-    Pron = {s : Case => Str ; a : Agreement} ;
+    CN = N ;
+    NP = {s : Case => Str ; n : Number};
+    Pron = {s : Case => Str ; n : Number; p : Person} ;
     Det = {s : Str ; n : Number} ;
     Prep = {s : Str} ;
-    V = Verb ;
+    V = Verb {s : Person => Number => Str} ;
     V2 = Verb2 ;
     A = {s : Gender => Number => Str} ;
-    N = Noun ;
+    N = {s : Number => Str ; g : Gender} ;
     Adv = {s : Str} ;
 
   lin
@@ -28,7 +28,7 @@ concrete MicroLangFra of MicroLang = open MicroResFra, Prelude in {
     UttNP np = {s = np.s ! Acc} ;
 
     PredVPS np vp = {
-      s = np.s ! Nom ++ vp.verb.s ! np.n ++ vp.compl ! np.g ! np.n
+      s = np.s ! Nom ++ vp.verb ! np.n ++ vp.compl ! np.g ! np.n
       } ;
       
     UseV v = {
@@ -52,42 +52,46 @@ concrete MicroLangFra of MicroLang = open MicroResFra, Prelude in {
       vp ** {compl = vp.compl ++ adv.s} ;
       
     DetCN det cn = {
-      s = \\c => det.s ++ cn.s ! det.n ;
-      a = Agr det.n ;
+      s = \\c => cn.s ! det.n ++ cn.s ! det.n ;
+      n = det.n ;
+      g = cn.g ;
       } ;
       
     UsePron p = p ;
             
-    a_Det = {s = pre {"a"|"e"|"i"|"o" => "an" ; _ => "a"} ; n = Sg} ; --- a/an can get wrong
-    aPl_Det = {s = "" ; n = Pl} ;
-    the_Det = {s = "the" ; n = Sg} ;
-    thePl_Det = {s = "the" ; n = Pl} ;
+    a_Det = {s = "une" ; n = Sg} ; 
+    aPl_Det = {s = "des" ; n = Pl} ;
+    the_Det = {s = pre {"a"|"e"|"i"|"o" => "l'" ; _ => "la"} ; n = Sg} ;
+    thePl_Det = {s = "elles" ; n = Pl} ;
     
     UseN n = n ;
     
     AdjCN ap cn = {
-      s = table {n => ap.s ! cn.n ! cn.g ++ cn.s ! n}
+      s = table {n => ap ! cn.g ++ cn.s ! n}
       } ;
 
     PositA a = a ;
 
     PrepNP prep np = {s = prep.s ++ np.s ! Acc} ;
 
-    in_Prep = {s = "in"} ;
-    on_Prep = {s = "on"} ;
-    with_Prep = {s = "with"} ;
+    in_Prep = {s = "dans"} ;
+    on_Prep = {s = "sur"} ;
+    with_Prep = {s = "avec"} ;
 
     he_Pron = {
-      s = table {Nom => "he" ; Acc => "him"} ;
-      a = Agr Sg ;
+      s = table {Nom => "il" ; Acc => "le"} ;
+      n = Sg ;
+      p = P3 ;
       } ;
     she_Pron = {
-      s = table {Nom => "she" ; Acc => "her"} ;
-      a = Agr Sg ;
+      s = table {Nom => "elle" ; Acc => "la"} ;
+      n = Sg ;
+      p = P3 ;
       } ;
     they_Pron = {
-      s = table {Nom => "they" ; Acc => "them"} ;
-      a = Agr Pl ;
+      s = table {Nom => "elles" ; Acc => "les"} ;
+      n = Pl ;
+      p = P3 ;
       } ;
 
 -----------------------------------------------------
@@ -197,7 +201,7 @@ oper
     } ;
 
   mkA : (ASgMasc,ASgFem,APlMasc,APlFem : Str) -> A 
-    = \s lin A (smartAdj s) ;
+    = \ASgMasc,ASgFem,APlMasc,APlFem -> lin A (smartAdj ASgMasc ASgFem APlMasc APlFem) ;
 
   mkV = overload {
     mkV : (Inf,p1sg,p1pl,p2sg,p2pl,p3sg,p3pl : Str) -> V  -- predictable verb, e.g. play-plays, cry-cries, wash-washes

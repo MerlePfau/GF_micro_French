@@ -4,10 +4,6 @@ param
   Number = Sg | Pl ;
   Case = Nom | Acc ;
   Gender = Fem | Masc ;
-
-
-  Agreement = Agr Number ; ---s Person to be added
-
   Person = P1 | P2 | P3 ;
 
 oper
