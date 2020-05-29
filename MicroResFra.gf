@@ -3,14 +3,16 @@ resource MicroResFra = open Prelude in {
 param
   Number = Sg | Pl ;
   Case = Nom | Acc ;
-  Gender = Fem | Masc ;
+  Gender = F | M ;
   Person = P1 | P2 | P3 ;
 
 oper
-  Noun : Type = {s : Number => Str} ;
+  Noun : Type = {s : Number => Str; g : Gender} ;
 
-  mkNoun : Str -> Str -> Noun = \sg,pl -> {
-    s = table {Sg => sg ; Pl => pl}
+  mkNoun : (sg,pl : Str) -> Noun 
+    = \sg,pl -> {
+    s = table {Sg => sg ; Pl => pl} ;
+    g = getGender sg
     } ;
 
   regNoun : Str -> Noun = \sg -> mkNoun sg (sg + "s") ;
@@ -22,13 +24,20 @@ oper
     _                          => regNoun sg
     } ;
 
+  getGender : Str -> Gender = \s -> case s of {
+    ("eau" | "maison" | "fleur" | "femme" ) => F ;
+    x + ("ière" | "ure" | "ille" | "ache" | "ie" | "aire" | "ngue" | "que" | "oile" ) => F ;
+    x + ("o" | "é" | "eau" | "eur" | "on" | "re" | "ant" | "in" | "at" | "age" | "me" | "en" | "eu" | "al" | "ait" | "ire" | "ang"| "an") => M ;
+    _ => Predef.error ("getGender" ++ s)
+    } ;
+
   Adjective : Type = {s : Gender => Number => Str} ;
 
   mkAdj : (ASgMasc,ASgFem,APlMasc,APlFem : Str) -> Adjective
     = \ASgMasc,ASgFem,APlMasc,APlFem -> {
     s = table {
-      Masc => table { Sg => ASgMasc ; Pl => APlMasc } ;
-      Fem  => table { Sg => ASgFem ; Pl => APlFem } 
+      M => table { Sg => ASgMasc ; Pl => APlMasc } ;
+      F  => table { Sg => ASgFem ; Pl => APlFem } 
       }
     } ;
 
