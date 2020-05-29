@@ -46,7 +46,7 @@ oper
 
   smartAdj : Str -> Adjective = \sg -> case sg of {
     x + "n"			=> mkAdj sg (x + "nne") (x + "ns") (x + "nnes") ;
-    x + "e"			=> mkAdj sg (x + "") (x + "s") (x + "s") ;
+    x + "e"			=> mkAdj sg (x + "e") (x + "es") (x + "es") ;
     x + "ieux"			=> mkAdj sg (x + "ielle") (x + "eux") (x + "ieilles") ;
     x + "eux"			=> mkAdj sg (x + "euse") (x + "eux") (x + "euses") ;
     x + "eau"			=> mkAdj sg (x + "elle") (x + "aux") (x + "elles") ;
@@ -69,9 +69,13 @@ oper
 
   -- regular verbs with predictable variations
   smartVerb : Str -> Verb = \stem -> case stem of {
-     stem + "eter" 		=> verb4eter stem ;
+     stem + "eter" 			=> verb4eter stem ;
+     stem + "ger"			=> verb5ger stem ;
      stem + "er" 			=> verb1er stem ;
+     stem + "ire"			=> verb6ire stem ;
+     stem + "oir"			=> verb7oir stem ;
      stem + "ir"			=> verb2ir stem ; 
+     stem + "vre"			=> verb8vre stem ;
      stem + "re"			=> verb3re stem 
 --     _ => regVerb inf
      } ;
@@ -108,11 +112,47 @@ oper
       }
     } ;
 
-  -- normal irregular verbs e.g. drink,drank,drunk
-  -- irregVerb : (inf,past,pastpart : Str) -> Verb =
-  --  \inf,past,pastpart ->
-  --    let verb = smartVerb inf
-  --    in mkVerb inf (verb.s ! PresSg3) past pastpart (verb.s ! PresPart) ;   
+  verb5ger: (stem : Str) -> Verb = \stem -> {
+    s = table {
+      P1 => table { Sg => stem + "ge" ; Pl => stem + "geons" } ;
+      P2 => table { Sg => stem + "ges" ; Pl => stem + "gez" } ;
+      P3 => table { Sg => stem + "ge" ; Pl => stem + "gent" } 
+      }
+    } ;
+
+  verb6ire: (stem : Str) -> Verb = \stem -> {
+    s = table {
+      P1 => table { Sg => stem + "s" ; Pl => stem + "sons" } ;
+      P2 => table { Sg => stem + "s" ; Pl => stem + "sez" } ;
+      P3 => table { Sg => stem + "t" ; Pl => stem + "sent" } 
+      }
+    } ;
+
+  verb7oir: (stem : Str) -> Verb = \stem -> {
+    s = table {
+      P1 => table { Sg => stem + "is" ; Pl => stem + "yons" } ;
+      P2 => table { Sg => stem + "is" ; Pl => stem + "yez" } ;
+      P3 => table { Sg => stem + "it" ; Pl => stem + "ient" } 
+      }
+    } ;
+
+   verb8vre: (stem : Str) -> Verb = \stem -> {
+    s = table {
+      P1 => table { Sg => stem + "s" ; Pl => stem + "vons" } ;
+      P2 => table { Sg => stem + "s" ; Pl => stem + "vez" } ;
+      P3 => table { Sg => stem + "t" ; Pl => stem + "vent" } 
+      }
+    } ;
+
+  irregVerb : (Inf,p1sg,p1pl,p2sg,p2pl,p3sg,p3pl : Str) -> Verb 
+    = \Inf,p1sg,p1pl,p2sg,p2pl,p3sg,p3pl -> {
+    s = table {
+      P1 => table { Sg => p1sg ; Pl => p1pl } ;
+      P2 => table { Sg => p2sg ; Pl => p2pl } ;
+      P3 => table { Sg => p3sg ; Pl => p3pl } 
+      }
+    } ;
+         
 
   -- two-place verb with "case" as preposition; for transitive verbs, c=[]
   Verb2 : Type = Verb ** {c : Str} ;

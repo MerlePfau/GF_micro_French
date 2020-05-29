@@ -14,7 +14,7 @@ concrete MicroLangFra of MicroLang = open MicroResFra, Prelude in {
     AP = Adjective ;
     NP = {s : Str ; n : Number; p : Person};
     Pron = {s : Case => Str ; n : Number; p : Person} ;
-    Det = {s : Str ; n : Number} ;
+    Det = {s : Gender => Str ; n : Number} ;
     Prep = {s : Str} ;
     V = {s : Person => Number => Str} ;
     V2 = Verb2 ;
@@ -40,34 +40,39 @@ concrete MicroLangFra of MicroLang = open MicroResFra, Prelude in {
       compl = v2.c ++ np.s  -- NP object in the accusative, preposition first
       } ;
       
-    --UseComp comp = {
-    --  verb = be_Verb ;     -- the verb is the copula "be"
-    --  compl = \\g => comp.s ! n ! g ;
-    --  } ;
-      
+    UseComp comp = {
+      verb = be_Verb ;     -- the verb is the copula "be"
+      compl = \\n,g => table {n => table {g => comp.s}} ;
+      } ;
+ 
     CompAP ap = ap ;
       
     AdvVP vp adv =
       vp ** {compl = vp.compl ++ adv.s} ;
       
     DetCN det cn = {
-      s = det.s ++ cn.s ! det.n ;
+      s = det.s ! cn.g ++ cn.s ! det.n ;
       g = cn.g ;
       n = det.n ;
       p = P3
       } ;
       
-    -- UsePron p = p.s ;
+    UsePron pron = {
+      s = \\c => pron.s ! c ;
+      p = pron.p ;
+      g = pron.g ;
+      } ;
             
-    a_Det = {s = "une" ; n = Sg} ; 
-    aPl_Det = {s = "des" ; n = Pl} ;
-    the_Det = {s = pre {"a"|"e"|"i"|"o"|"h" => "l'" ; _ => "la"} ; n = Sg} ;
-    thePl_Det = {s = "elles" ; n = Pl} ;
+    a_Det = {s = table {M => "un" ; F => "une"} ; n = Sg} ;
+    aPl_Det = {s = table {M => "des" ; F => "des"} ; n = Pl} ;
+    -- the_Det = {s = pre {"a"|"e"|"i"|"o"|"h" => "l'" ; _ =>  "la"} ; n = Sg} ;
+    the_Det = {s = table {M => "le" ; F => "la"} ; n = Sg} ;
+    thePl_Det = {s = table {M => "les" ; F => "les"} ; n = Pl} ;
     
     UseN n = n ;    
 
     AdjCN ap cn = {
-      s = \\n => ap.s ! cn.g ! n ++ cn.s ! n ;
+      s = \\n => cn.s ! n ++ ap.s ! cn.g ! n ;
       g = cn.g ;
       } ;
 
@@ -125,7 +130,7 @@ lin clean_A = mkA "propre" ;
 lin clever_A = mkA "malin" ;
 lin cloud_N = mkN "nuage" ;  --m
 lin cold_A = mkA "froid" ;
-lin come_V = mkV "venir" "viens" "viens" "vient" "venons" "venez" "viennent" ;
+lin come_V = mkV "venir" "viens" "venons" "viens" "venez" "vient" "viennent" ;
 lin computer_N = mkN "ordinateur" ;  --m
 lin cow_N = mkN "vache" ;  --f
 lin dirty_A = mkA "sale" ;
@@ -139,7 +144,7 @@ lin flower_N = mkN "fleur" ;  --f
 lin friend_N = mkN "amie" ;  --f
 lin girl_N = mkN "fille" ;  --f
 lin good_A = mkA "bon"  ;
-lin go_V = mkV "aller" "vais" "vas" "va" "allons" "allez" "vont" ;
+lin go_V = mkV "aller" "vais" "allons" "vas" "allez" "va" "vont" ;
 lin grammar_N = mkN "grammaire" ;  --f
 lin green_A = mkA "vert" ;
 lin heavy_A = mkA "lourd" ;
@@ -147,7 +152,7 @@ lin horse_N = mkN "cheval" ;  --m
 lin hot_A = mkA "chaud" ;
 lin house_N = mkN "maison" ;  --f
 -- lin john_PN = mkPN "John" ;
-lin jump_V = mkV "bondir" ;
+lin jump_V = mkV "bondir" "bondis" "bondissons" "bondis" "bondissez" "bondit" "bondissent" ;
 lin kill_V2 = mkV2 "tuer" ;
 -- lin know_VS = mkVS (mkV "know" "knew" "known") ;
 lin language_N = mkN "langue" ;  --f
@@ -205,10 +210,10 @@ oper
     = \ASgMasc -> lin A (smartAdj ASgMasc) ;
 
   mkV = overload {
-    mkV : (stem: Str) -> V  -- predictable verb, e.g. play-plays, cry-cries, wash-washes
-      = \stem -> lin V (smartVerb stem) 
-   -- mkV : (inf,pres,part : Str) -> V  -- irregular verb, e.g. drink-drank-drunk
-   --   = \inf,pres,part -> lin V (irregVerb inf pres part) ;
+    mkV : (Inf: Str) -> V  -- predictable verb, e.g. play-plays, cry-cries, wash-washes
+      = \stem -> lin V (smartVerb stem) ;
+    mkV : (Inf,p1sg,p1pl,p2sg,p2pl,p3sg,p3pl : Str) -> V  -- irregular verb, e.g. drink-drank-drunk
+      = \Inf,p1sg,p1pl,p2sg,p2pl,p3sg,p3pl -> lin V (irregVerb Inf p1sg p1pl p2sg p2pl p3sg p3pl) ;
     } ;
 
   mkV2 = overload {
