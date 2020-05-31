@@ -41,7 +41,7 @@ concrete MicroLangFra of MicroLang = open MicroResFra, Prelude in {
       } ;
       
     UseComp comp = {
-      compl = \\n,g => g => comp.s ! n ! g ;
+      compl = \\n,g => comp.s ! n ! g ;
       verb = be_Verb ;     -- the verb is the copula "be"
       } ;
  
@@ -57,12 +57,12 @@ concrete MicroLangFra of MicroLang = open MicroResFra, Prelude in {
       p = P3 
       } ;
       
-    UsePron pron = {
-      s = \\c => pron.s ! c ;
-      p = pron.p ;
-      g = pron.g ;
-      n = pron.n 
-      } ;
+    --UsePron pron = {
+    --  s = \\c => pron.s ! c; 
+    --  g = pron.g; 
+    --  n = pron.n;
+    --  p = pron.p
+    --  } ;
             
     a_Det = {s = table {M => "un" ; F => "une"} ; n = Sg} ;
     aPl_Det = {s = table {M => "des" ; F => "des"} ; n = Pl} ;
