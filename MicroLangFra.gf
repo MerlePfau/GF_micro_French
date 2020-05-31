@@ -10,9 +10,9 @@ concrete MicroLangFra of MicroLang = open MicroResFra, Prelude in {
     
     S  = {s : Str} ;
     VP = {verb : Verb ; compl : Number => Gender => Str} ; ---s special case of Mini
-    NP = {s : Case => Str ; n : Number; p : Person; g : Gender};
+    NP = {s : Case => Str ; n : Number; p : Person ; g : Gender};
     Comp, AP, A = Adjective ;
-    Pron = {s : Case => Str ; n : Number; p : Person ; g : Gender} ;
+    Pron = {s : Case => Str ; n : Number ; p : Person ; g : Gender} ;
     Det = {s : Gender => Str ; n : Number} ;
     Prep = {s : Str} ;
     V = {s : Person => Number => Str} ;
@@ -27,7 +27,7 @@ concrete MicroLangFra of MicroLang = open MicroResFra, Prelude in {
     PredVPS np vp = {
       s = np.s ! Nom ++ vp.verb.s ! np.p ! np.n ++ vp.compl ! np.n ! np.g
       } ;
-      
+  
     UseV v = {
       verb = v ;
       compl = \\g,n => [] ;
@@ -55,7 +55,7 @@ concrete MicroLangFra of MicroLang = open MicroResFra, Prelude in {
       p = P3 
       } ;
       
-    UsePron p = p;
+    UsePron p = p ;
             
     a_Det = {s = table {M => "un" ; F => "une"} ; n = Sg} ;
     aPl_Det = {s = table {M => "des" ; F => "des"} ; n = Pl} ;

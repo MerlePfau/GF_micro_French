@@ -5,6 +5,8 @@ param
   Case = Nom | Acc | Dat ;
   Gender = F | M ;
   Person = P1 | P2 | P3 ;
+  Is_Pron = bool ;
+
 
 oper
   Noun : Type = {s : Number => Str; g : Gender} ;
@@ -77,6 +79,7 @@ oper
      stem + "mir"			=> verb9mir stem ; 
      stem + "ir"			=> verb2ir stem ; 
      stem + "vre"			=> verb8vre stem ;
+     stem + "endre"			=> verb10endre stem ;
      stem + "re"			=> verb3re stem 
 --     _ => regVerb inf
      } ;
@@ -150,6 +153,14 @@ oper
       P1 => table { Sg => stem + "s" ; Pl => stem + "mons" } ;
       P2 => table { Sg => stem + "s" ; Pl => stem + "mez" } ;
       P3 => table { Sg => stem + "t" ; Pl => stem + "ment" } 
+      }
+    } ;
+
+  verb10endre: (stem : Str) -> Verb = \stem -> {
+    s = table {
+      P1 => table { Sg => stem + "ends" ; Pl => stem + "enons" } ;
+      P2 => table { Sg => stem + "ends" ; Pl => stem + "enez" } ;
+      P3 => table { Sg => stem + "end" ; Pl => stem + "ennent" } 
       }
     } ;
 

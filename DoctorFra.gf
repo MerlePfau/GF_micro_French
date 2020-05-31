@@ -69,7 +69,7 @@ lin
   undressAction = mkVP (reflV (mkV "déshabiller")) ;
   dressAction = mkVP (reflV (mkV "habiller")) ;
   eatAction = mkVP (mkV "manger") ;
-  drinkAction = mkVP (mkV "boire") ;
+  drinkAction = mkVP (mkV "boire" "bois" "buvons" "boivent" "but" "boira" "bu") ;
   smokeAction = mkVP (mkV "fumer") ;
   measureTemperatureAction = mkVP (mkV2 (mkV "mesurer")) (mkNP the_Det (mkN "temperatur du corps")) ;
   measureBloodPressureAction = mkVP (mkV2 (mkV "mesurer")) (mkNP the_Det (mkN "tension artérielle")) ;
@@ -86,7 +86,7 @@ lin
 
   bePregnantProperty = mkVP (mkA "enceinte") ;
   beIllProperty = mkVP (mkA "mauvais") ;
-  beWellProperty = mkVP (mkA "bien") ;
+  beWellProperty = mkVP (mkA "bien" "bien" "bien" "bien") ;
   beDeadProperty = mkVP (mkA "mort") ;
   haveAllergiesProperty = mkVP have_V2 (mkNP aPl_Det (mkN "allergie")) ;
   havePainsProperty = mkVP have_V2 (mkNP aPl_Det (mkN "douleur")) ;
@@ -97,7 +97,7 @@ lin
   headacheIllness = mkNP a_Det (mkN "mal de crâne") ;
   diarrheaIllness = mkNP a_Det (mkN "diarrhée") ;
   heartDiseaseIllness = mkNP a_Det (mkN "cardiopathie") ;
-  lungDiseaseIllness = mkNP aPl_Det (mkN "maladie pulmonaire") ;
+  lungDiseaseIllness = mkNP a_Det (mkN "maladie pulmonaire") ;
   hypertensionIllness = mkNP (mkN "hypertension") ;
 
   alcoholSubstance = mkNP (mkN "alcool") ;
@@ -109,6 +109,7 @@ oper
 
   go_V = mkV "aller" "vais" "allons" "vont" "alla" "ira" "allé" ;
   stay_V = mkV "rester" ;
+  --need_V2 = mkV2 (mkV "avoir" "besoin") ; --how?
   need_V2 = mkV2 (mkV "nécessiter") ;
   take_V2 = mkV2 (mkV "prendre") ;
   put_V2 = mkV2 (mkV "mettre") ;
