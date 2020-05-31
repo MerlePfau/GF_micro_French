@@ -9,60 +9,53 @@ concrete MicroLangFra of MicroLang = open MicroResFra, Prelude in {
     Utt = {s : Str} ;
     
     S  = {s : Str} ;
-    VP = {verb : Verb ; compl : Str} ; ---s special case of Mini
-    Comp = Adjective ;
-    AP = Adjective ;
-    NP = {s : Str ; n : Number; p : Person; g : Gender};
+    VP = {verb : Verb ; compl : Number => Gender => Str} ; ---s special case of Mini
+    NP = {s : Case => Str ; n : Number; p : Person; g : Gender};
+    Comp, AP, A = Adjective ;
     Pron = {s : Case => Str ; n : Number; p : Person ; g : Gender} ;
     Det = {s : Gender => Str ; n : Number} ;
     Prep = {s : Str} ;
     V = {s : Person => Number => Str} ;
     V2 = Verb2 ;
-    A = Adjective ;
     N, CN = Noun ;
     Adv = {s : Str} ;
 
   lin
     UttS s = s ;
-    UttNP np = {s = np.s} ;
+    UttNP np = {s = np.s ! Acc} ;
 
     PredVPS np vp = {
-      s = np.s ++ vp.verb.s ! np.p ! np.n ++ vp.compl
+      s = np.s ! Nom ++ vp.verb.s ! np.p ! np.n ++ vp.compl ! np.n ! np.g
       } ;
       
     UseV v = {
       verb = v ;
-      compl = [] ;
+      compl = \\g,n => [] ;
       } ;
       
     ComplV2 v2 np = {
       verb = v2 ;
-      compl = v2.c ++ np.s  -- NP object in the accusative, preposition first
+      compl = \\g,n => v2.c ! g ! n ++ np.s ! Acc  -- NP object in the accusative, preposition first
       } ;
-      
+         
     UseComp comp = {
-      compl = \\n,g => comp.s ! n ! g ;
+      compl = \\n,g => comp.s ! g ! n ;
       verb = be_Verb ;     -- the verb is the copula "be"
       } ;
  
     CompAP ap = ap ;
       
     AdvVP vp adv =
-      vp ** {compl = vp.compl ++ adv.s} ;
+      vp ** {compl = \\g,n => vp.compl ! g ! n ++ adv.s} ;
       
     DetCN det cn = {
-      s = det.s ! cn.g ++ cn.s ! det.n ;
+      s = \\c => det.s ! cn.g ++ cn.s ! det.n ;
       g = cn.g ;
       n = det.n ;
       p = P3 
       } ;
       
-    --UsePron pron = {
-    --  s = \\c => pron.s ! c; 
-    --  g = pron.g; 
-    --  n = pron.n;
-    --  p = pron.p
-    --  } ;
+    UsePron p = p;
             
     a_Det = {s = table {M => "un" ; F => "une"} ; n = Sg} ;
     aPl_Det = {s = table {M => "des" ; F => "des"} ; n = Pl} ;
@@ -83,26 +76,26 @@ concrete MicroLangFra of MicroLang = open MicroResFra, Prelude in {
 
     PositA a = a ;
 
-    PrepNP prep np = {s = prep.s ++ np.s } ;
+    PrepNP prep np = {s = prep.s ++ np.s ! Dat } ;
 
     in_Prep = {s = "dans"} ;
     on_Prep = {s = "sur"} ;
     with_Prep = {s = "avec"} ;
 
     he_Pron = {
-      s = table {Nom => "il" ; Acc => "le"} ;
+      s = table {Nom => "il" ; Acc => "le" ; Dat => "lui"} ;
       n = Sg ;
       p = P3 ;
       g = M ;
       } ;
     she_Pron = {
-      s = table {Nom => "elle" ; Acc => "la"} ;
+      s = table {Nom => "elle" ; Acc => "la" ; Dat => "elle"} ;
       n = Sg ;
       p = P3 ;
       g = F ;
       } ;
     they_Pron = {
-      s = table {Nom => "elles" ; Acc => "les"} ;
+      s = table {Nom => "elles" ; Acc => "les" ; Dat => "eux"} ;
       n = Pl ;
       p = P3 ;
       g = F ;
@@ -226,13 +219,13 @@ oper
 
   mkV2 = overload {
     mkV2 : Str -> V2          -- predictable verb with direct object, e.g. "wash"
-      = \s   -> lin V2 (smartVerb s ** {c = []}) ;
+      = \s   -> lin V2 (smartVerb s ** {c = \\g,n => []}) ;
     mkV2 : Str  -> Str -> V2  -- predictable verb with preposition, e.g. "wait - for"
-      = \s,p -> lin V2 (smartVerb s ** {c = p}) ;
+      = \s,p -> lin V2 (smartVerb s ** {c = \\g,n => p}) ;
     mkV2 : V -> V2            -- any verb with direct object, e.g. "drink"
-      = \v   -> lin V2 (v ** {c = []}) ;
+      = \v   -> lin V2 (v ** {c = \\g,n => []}) ;
     mkV2 : V -> Str -> V2     -- any verb with preposition
-      = \v,p -> lin V2 (v ** {c = p}) ;
+      = \v,p -> lin V2 (v ** {c = \\g,n => p}) ;
     } ;
 
   mkAdv : Str -> Adv

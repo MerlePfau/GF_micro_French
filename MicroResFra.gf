@@ -2,7 +2,7 @@ resource MicroResFra = open Prelude in {
 
 param
   Number = Sg | Pl ;
-  Case = Nom | Acc ;
+  Case = Nom | Acc | Dat ;
   Gender = F | M ;
   Person = P1 | P2 | P3 ;
 
@@ -123,17 +123,17 @@ oper
 
   verb6ire: (stem : Str) -> Verb = \stem -> {
     s = table {
-      P1 => table { Sg => stem + "s" ; Pl => stem + "sons" } ;
-      P2 => table { Sg => stem + "s" ; Pl => stem + "sez" } ;
-      P3 => table { Sg => stem + "t" ; Pl => stem + "sent" } 
+      P1 => table { Sg => stem + "is" ; Pl => stem + "isons" } ;
+      P2 => table { Sg => stem + "is" ; Pl => stem + "isez" } ;
+      P3 => table { Sg => stem + "it" ; Pl => stem + "isent" } 
       }
     } ;
 
   verb7oir: (stem : Str) -> Verb = \stem -> {
     s = table {
-      P1 => table { Sg => stem + "is" ; Pl => stem + "yons" } ;
-      P2 => table { Sg => stem + "is" ; Pl => stem + "yez" } ;
-      P3 => table { Sg => stem + "it" ; Pl => stem + "ient" } 
+      P1 => table { Sg => stem + "ois" ; Pl => stem + "oyons" } ;
+      P2 => table { Sg => stem + "ois" ; Pl => stem + "oyez" } ;
+      P3 => table { Sg => stem + "oit" ; Pl => stem + "oient" } 
       }
     } ;
 
@@ -164,15 +164,8 @@ oper
          
 
   -- two-place verb with "case" as preposition; for transitive verbs, c=[]
-  Verb2 : Type = Verb ** {c : Str} ;
+  Verb2 : Type = Verb ** {c : Number => Gender => Str} ;
 
   be_Verb : Verb = mkVerb "être" "suis" "sommes" "es" "êtes" "est" "sont" ; ---s to be generalized
-
-
----s a very simplified verb agreement function for Micro
-  --agr2vform : Agreement -> VForm = \a -> case a of {
-    --Agr Sg => PresSg3 ;
-    --Agr Pl => Inf
-    --} ;
 
 }
