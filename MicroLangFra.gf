@@ -12,8 +12,8 @@ concrete MicroLangFra of MicroLang = open MicroResFra, Prelude in {
     VP = {verb : Verb ; compl : Str} ; ---s special case of Mini
     Comp = Adjective ;
     AP = Adjective ;
-    NP = {s : Str ; n : Number; p : Person};
-    Pron = {s : Case => Str ; n : Number; p : Person} ;
+    NP = {s : Str ; n : Number; p : Person; g : Gender};
+    Pron = {s : Case => Str ; n : Number; p : Person ; g : Gender} ;
     Det = {s : Gender => Str ; n : Number} ;
     Prep = {s : Str} ;
     V = {s : Person => Number => Str} ;
@@ -40,10 +40,10 @@ concrete MicroLangFra of MicroLang = open MicroResFra, Prelude in {
       compl = v2.c ++ np.s  -- NP object in the accusative, preposition first
       } ;
       
-    UseComp comp = {
-      verb = be_Verb ;     -- the verb is the copula "be"
-      compl = \\n,g => table {n => table {g => comp.s}} ;
-      } ;
+    --UseComp comp = {
+    --  verb = be_Verb ;     -- the verb is the copula "be"
+    --  compl = \\n,g => table {n => table {g => comp.s}} ;
+    --  } ;
  
     CompAP ap = ap ;
       
@@ -54,19 +54,24 @@ concrete MicroLangFra of MicroLang = open MicroResFra, Prelude in {
       s = det.s ! cn.g ++ cn.s ! det.n ;
       g = cn.g ;
       n = det.n ;
-      p = P3
+      p = P3 
       } ;
       
     UsePron pron = {
-      s = \\c => pron.s ! c ;
+      s = table {Nom => pron.s ! Nom ; Acc => pron.s ! Acc} ;
       p = pron.p ;
       g = pron.g ;
+      n = pron.n ;
       } ;
             
     a_Det = {s = table {M => "un" ; F => "une"} ; n = Sg} ;
     aPl_Det = {s = table {M => "des" ; F => "des"} ; n = Pl} ;
-    -- the_Det = {s = pre {"a"|"e"|"i"|"o"|"h" => "l'" ; _ =>  "la"} ; n = Sg} ;
-    the_Det = {s = table {M => "le" ; F => "la"} ; n = Sg} ;
+    the_Det = {s = table {
+	M => pre {"a"|"e"|"i"|"o"|"h" => "l'" ; _ =>  "le"} ; 
+	F => pre {"a"|"e"|"i"|"o"|"h" => "l'" ; _ =>  "la"} 
+	} ;
+	n = Sg
+	} ;
     thePl_Det = {s = table {M => "les" ; F => "les"} ; n = Pl} ;
     
     UseN n = n ;    
@@ -88,16 +93,19 @@ concrete MicroLangFra of MicroLang = open MicroResFra, Prelude in {
       s = table {Nom => "il" ; Acc => "le"} ;
       n = Sg ;
       p = P3 ;
+      g = M ;
       } ;
     she_Pron = {
       s = table {Nom => "elle" ; Acc => "la"} ;
       n = Sg ;
       p = P3 ;
+      g = F ;
       } ;
     they_Pron = {
       s = table {Nom => "elles" ; Acc => "les"} ;
       n = Pl ;
       p = P3 ;
+      g = F ;
       } ;
 
 -----------------------------------------------------
