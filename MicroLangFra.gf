@@ -58,10 +58,10 @@ concrete MicroLangFra of MicroLang = open MicroResFra, Prelude in {
       } ;
       
     UsePron pron = {
-      s = table {Nom => pron.s ! Nom ; Acc => pron.s ! Acc} ;
+      s = \\c => pron.s ! c ;
       p = pron.p ;
       g = pron.g ;
-      n = pron.n ;
+      n = pron.n 
       } ;
             
     a_Det = {s = table {M => "un" ; F => "une"} ; n = Sg} ;
