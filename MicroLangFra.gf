@@ -40,10 +40,10 @@ concrete MicroLangFra of MicroLang = open MicroResFra, Prelude in {
       compl = v2.c ++ np.s  -- NP object in the accusative, preposition first
       } ;
       
-    --UseComp comp = {
-    --  verb = be_Verb ;     -- the verb is the copula "be"
-    --  compl = \\n,g => table {n => table {g => comp.s}} ;
-    --  } ;
+    UseComp comp = {
+      compl = \\n,g => g => comp.s ! n ! g ;
+      verb = be_Verb ;     -- the verb is the copula "be"
+      } ;
  
     CompAP ap = ap ;
       
