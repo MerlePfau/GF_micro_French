@@ -5,7 +5,6 @@ param
   Case = Nom | Acc | Dat ;
   Gender = F | M ;
   Person = P1 | P2 | P3 ;
-  Is_Pron = bool ;
 
 
 oper
@@ -21,9 +20,10 @@ oper
 
   -- smart paradigm
   smartNoun : Str -> Noun = \sg -> case sg of {
-    x + "au"                   => mkNoun sg (x + "aux") ;
-    x + "al"                   => mkNoun sg (x + "aux") ;
-    _                          => regNoun sg
+    x + "au"       		=> mkNoun sg (x + "aux") ;
+    x + "al"			=> mkNoun sg (x + "aux") ;
+    _ + ("s"|"z"|"x")		=> mkNoun sg (sg) ;
+    _                       	=> regNoun sg
     } ;
 
   getGender : Str -> Gender = \s -> case s of {
@@ -33,28 +33,32 @@ oper
     _ => Predef.error ("getGender" ++ s)
     } ;
 
-  Adjective : Type = {s : Gender => Number => Str} ;
+  Adjective : Type = {s : Gender => Number => Str ; isPre : Bool } ;
 
-  mkAdj : (ASgMasc,ASgFem,APlMasc,APlFem : Str) -> Adjective
-    = \ASgMasc,ASgFem,APlMasc,APlFem -> {
+  mkAdj : (ASgMasc,ASgFem,APlMasc,APlFem : Str) -> Bool -> Adjective
+    = \ASgMasc,ASgFem,APlMasc,APlFem,pos -> {
     s = table {
       M => table { Sg => ASgMasc ; Pl => APlMasc } ;
-      F  => table { Sg => ASgFem ; Pl => APlFem } 
-      }
+      F => table { Sg => ASgFem ; Pl => APlFem }} ;
+    isPre = pos ;
     } ;
+
 
   regAdj : (ASgMasc : Str) -> Adjective = \sg ->
-    mkAdj sg (sg + "e") (sg + "s") (sg + "es") ;
+    mkAdj sg (sg + "e") (sg + "s") (sg + "es") False ;
 
   smartAdj : Str -> Adjective = \sg -> case sg of {
-    x + "n"			=> mkAdj sg (x + "nne") (x + "ns") (x + "nnes") ;
-    x + "e"			=> mkAdj sg (x + "e") (x + "es") (x + "es") ;
-    x + "ieux"			=> mkAdj sg (x + "ielle") (x + "ieux") (x + "ieilles") ;
-    x + "eux"			=> mkAdj sg (x + "euse") (x + "eux") (x + "euses") ;
-    x + "eau"			=> mkAdj sg (x + "elle") (x + "aux") (x + "elles") ;
+    x + "n"			=> mkAdj sg (x + "nne") (x + "ns") (x + "nnes") False ;
+    x + "e"			=> mkAdj sg (x + "e") (x + "es") (x + "es") False ;
+    x + "ieux"			=> mkAdj sg (x + "ielle") (x + "ieux") (x + "ieilles") False ;
+    x + "eux"			=> mkAdj sg (x + "euse") (x + "eux") (x + "euses") False ;
+    x + "eau"			=> mkAdj sg (x + "elle") (x + "aux") (x + "elles") False ;
+    x + "anc"			=> mkAdj sg (x + "anche") (x + "ancs") (x + "anches") False ;
     _ 				=> regAdj sg
     } ;
+  
 
+ 
   Verb : Type = {s : Person => Number => Str} ;
 
   mkVerb : (Inf,p1sg,p1pl,p2sg,p2pl,p3sg,p3pl : Str) -> Verb
@@ -66,8 +70,6 @@ oper
       }
     } ;
 
-  --regVerb : (inf : Str) -> Verb = \inf ->
-    --mkVerb inf (inf + "s") (inf + "ed") (inf + "ed") (inf + "ing") ;
 
   -- regular verbs with predictable variations
   smartVerb : Str -> Verb = \stem -> case stem of {
@@ -79,9 +81,8 @@ oper
      stem + "mir"			=> verb9mir stem ; 
      stem + "ir"			=> verb2ir stem ; 
      stem + "vre"			=> verb8vre stem ;
-     stem + "endre"			=> verb10endre stem ;
+     stem + "prendre"			=> verb10prendre stem ;
      stem + "re"			=> verb3re stem 
---     _ => regVerb inf
      } ;
 
   verb1er: (stem : Str) -> Verb = \stem -> {
@@ -156,11 +157,11 @@ oper
       }
     } ;
 
-  verb10endre: (stem : Str) -> Verb = \stem -> {
+  verb10prendre: (stem : Str) -> Verb = \stem -> {
     s = table {
-      P1 => table { Sg => stem + "ends" ; Pl => stem + "enons" } ;
-      P2 => table { Sg => stem + "ends" ; Pl => stem + "enez" } ;
-      P3 => table { Sg => stem + "end" ; Pl => stem + "ennent" } 
+      P1 => table { Sg => stem + "prends" ; Pl => stem + "prenons" } ;
+      P2 => table { Sg => stem + "prends" ; Pl => stem + "prenez" } ;
+      P3 => table { Sg => stem + "prend" ; Pl => stem + "prennent" } 
       }
     } ;
 
@@ -175,7 +176,7 @@ oper
          
 
   -- two-place verb with "case" as preposition; for transitive verbs, c=[]
-  Verb2 : Type = Verb ** {c : Number => Gender => Str} ;
+  Verb2 : Type = Verb ** {c : Gender => Number => Str} ;
 
   be_Verb : Verb = mkVerb "être" "suis" "sommes" "es" "êtes" "est" "sont" ; ---s to be generalized
 

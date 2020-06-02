@@ -9,8 +9,8 @@ concrete MicroLangFra of MicroLang = open MicroResFra, Prelude in {
     Utt = {s : Str} ;
     
     S  = {s : Str} ;
-    VP = {verb : Verb ; compl : Number => Gender => Str} ; ---s special case of Mini
-    NP = {s : Case => Str ; n : Number; p : Person ; g : Gender};
+    VP = {verb : Verb ; compl : Gender => Number => Str; isPron : Bool} ; ---s special case of Mini
+    NP = {s : Case => Str ; n : Number; p : Person ; g : Gender; isPron : Bool};
     Comp, AP, A = Adjective ;
     Pron = {s : Case => Str ; n : Number ; p : Person ; g : Gender} ;
     Det = {s : Gender => Str ; n : Number} ;
@@ -25,22 +25,28 @@ concrete MicroLangFra of MicroLang = open MicroResFra, Prelude in {
     UttNP np = {s = np.s ! Acc} ;
 
     PredVPS np vp = {
-      s = np.s ! Nom ++ vp.verb.s ! np.p ! np.n ++ vp.compl ! np.n ! np.g
+      s = case vp.isPron of {
+        True => np.s ! Nom ++ vp.compl ! np.g ! np.n ++ vp.verb.s ! np.p ! np.n ;
+        False => np.s ! Nom ++ vp.verb.s ! np.p ! np.n ++ vp.compl ! np.g ! np.n
+        }
       } ;
   
     UseV v = {
       verb = v ;
       compl = \\g,n => [] ;
+      isPron = False
       } ;
       
     ComplV2 v2 np = {
       verb = v2 ;
-      compl = \\g,n => v2.c ! g ! n ++ np.s ! Acc  -- NP object in the accusative, preposition first
+      compl = \\g,n => v2.c ! g ! n ++ np.s ! Acc ; -- NP object in the accusative, preposition first
+      isPron = np.isPron
       } ;
          
     UseComp comp = {
-      compl = \\n,g => comp.s ! g ! n ;
+      compl = \\g,n => comp.s ! g ! n ;
       verb = be_Verb ;     -- the verb is the copula "be"
+      isPron = False
       } ;
  
     CompAP ap = ap ;
@@ -52,10 +58,11 @@ concrete MicroLangFra of MicroLang = open MicroResFra, Prelude in {
       s = \\c => det.s ! cn.g ++ cn.s ! det.n ;
       g = cn.g ;
       n = det.n ;
-      p = P3 
+      p = P3 ;
+      isPron = False
       } ;
       
-    UsePron p = p ;
+    UsePron p = p ** {isPron = True} ;
             
     a_Det = {s = table {M => "un" ; F => "une"} ; n = Sg} ;
     aPl_Det = {s = table {M => "des" ; F => "des"} ; n = Pl} ;
@@ -67,29 +74,34 @@ concrete MicroLangFra of MicroLang = open MicroResFra, Prelude in {
 	} ;
     thePl_Det = {s = table {M => "les" ; F => "les"} ; n = Pl} ;
     
-    UseN n = n ;    
+    UseN n = n ** {isPron = False} ;    
 
     AdjCN ap cn = {
-      s = \\n => cn.s ! n ++ ap.s ! cn.g ! n ;
+      s = \\n => case ap.isPre of {
+        True => ap.s ! cn.g ! n ++ cn.s ! n ;
+        False => cn.s ! n ++ ap.s ! cn.g ! n } ;
       g = cn.g ;
       } ;
 
     PositA a = a ;
 
-    PrepNP prep np = {s = prep.s ++ np.s ! Dat } ;
+    PrepNP prep np = {
+      s = prep.s ++ np.s ! Dat ;
+      isPron = False
+      } ;
 
     in_Prep = {s = "dans"} ;
     on_Prep = {s = "sur"} ;
     with_Prep = {s = "avec"} ;
 
     he_Pron = {
-      s = table {Nom => "il" ; Acc => "le" ; Dat => "lui"} ;
+      s = table {Nom => "il" ; Acc => pre {"a"|"e"|"i"|"o"|"h" => "l'" ; _ =>  "le"} ; Dat => "lui"} ;
       n = Sg ;
       p = P3 ;
       g = M ;
       } ;
     she_Pron = {
-      s = table {Nom => "elle" ; Acc => "la" ; Dat => "elle"} ;
+      s = table {Nom => "elle" ; Acc => pre {"a"|"e"|"i"|"o"|"h" => "l'" ; _ =>  "la"} ; Dat => "elle"} ;
       n = Sg ;
       p = P3 ;
       g = F ;
@@ -111,7 +123,7 @@ lin apple_N = mkN "pomme" ;  --m
 lin baby_N = mkN "bébé" ; --m
 lin bad_A = mkA "mal" ;
 lin beer_N = mkN "bière" ;  --f
-lin big_A = mkA "grand" ;
+lin big_A = mkA "grand" True ;
 lin bike_N = mkN "vélo" ;  --m
 lin bird_N = mkN "oiseau" ;  --m
 lin black_A = mkA "noir" ;
@@ -144,7 +156,7 @@ lin fish_N = mkN "poisson" ;  --m
 lin flower_N = mkN "fleur" ;  --f
 lin friend_N = mkN "amie" ;  --f
 lin girl_N = mkN "fille" ;  --f
-lin good_A = mkA "bon"  ;
+lin good_A = mkA "bon" True  ;
 lin go_V = mkV "aller" "vais" "allons" "vas" "allez" "va" "vont" ;
 lin grammar_N = mkN "grammaire" ;  --f
 lin green_A = mkA "vert" ;
@@ -162,9 +174,9 @@ lin love_V2 = mkV2 (mkV "aimer") ;
 lin man_N = mkN "homme" ;  --m
 lin milk_N = mkN "lait" ;  --m
 lin music_N = mkN "musique" ;  --f
-lin new_A = mkA "nouveau" ;
+lin new_A = mkA "nouveau" True ;
 lin now_Adv = mkAdv "maintenant" ;
-lin old_A = mkA "vieux" ;
+lin old_A = mkA "vieux" True ;
 -- lin paris_PN = mkPN "Paris" ;
 lin play_V = mkV "jouer" ;
 lin read_V2 = mkV2 (mkV "lire") ;
@@ -176,7 +188,7 @@ lin sea_N = mkN "océan" ;  --m
 lin see_V2 = mkV2 (mkV "voir") ;
 lin ship_N = mkN "navire" ;  --m
 lin sleep_V = mkV "dormir" ;
-lin small_A = mkA "petit" ;
+lin small_A = mkA "petit" True ;
 lin star_N = mkN "étoile" ;  --f
 lin swim_V = mkV "nager";
 lin teach_V2 = mkV2 (mkV "apprendre") ;
@@ -192,7 +204,7 @@ lin white_A = mkA "blanc" ;
 lin wine_N = mkN "vin" ;  --m
 lin woman_N = mkN "femme" ;  --f
 lin yellow_A = mkA "jaune" ;
-lin young_A = mkA "jeune" ;
+lin young_A = mkA "jeune" True ;
 
 
 ---------------------------
@@ -207,8 +219,10 @@ oper
       = \sg,pl -> lin N (mkNoun sg pl) ;
     } ;
 
-  mkA : (ASgMasc : Str) -> A 
-    = \ASgMasc -> lin A (smartAdj ASgMasc) ;
+  mkA = overload {
+    mkA : Str -> A = \a -> lin A (smartAdj a) ;
+    mkA : Str -> Bool -> A = \a,p -> lin A (smartAdj a ** { isPre = p }) ;
+    } ;
 
   mkV = overload {
     mkV : (Inf: Str) -> V  -- predictable verb, e.g. play-plays, cry-cries, wash-washes

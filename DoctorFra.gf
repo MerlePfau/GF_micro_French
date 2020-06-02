@@ -27,14 +27,12 @@ lin
   presNegPhrase fact = mkUtt (mkS negativePol fact) ;
   pastPosPhrase fact = mkUtt (mkS anteriorAnt fact) ;
   pastNegPhrase fact = mkUtt (mkS anteriorAnt negativePol fact) ;
-  -- presQuestionPhrase fact = mkUtt (mkQS (mkQCl fact)) ;
-  -- pastQuestionPhrase fact = mkUtt (mkQS anteriorAnt (mkQCl fact)) ;
   presQuestionPhrase fact = let p : Utt = mkUtt (mkQS (mkQCl fact)) in p ** {s = p.s ++ SOFT_BIND ++ "?"} ;
   pastQuestionPhrase fact = let p : Utt = mkUtt (mkQS anteriorAnt (mkQCl fact)) in p ** {s = p.s ++ SOFT_BIND ++ "?"} ;
 
 
-  impPosPhrase action = mkUtt (mkImp action) ;
-  impNegPhrase action = mkUtt negativePol (mkImp action) ;
+  impPosPhrase action = mkUtt politeImp (mkImp action) ;
+  impNegPhrase action = mkUtt politeImp negativePol (mkImp action) ;
 
   actionFact person action = mkCl person action ;
   propertyFact person property = mkCl person property ;
@@ -48,8 +46,8 @@ lin
 
   iMascPerson = i_NP ;
   iFemPerson = i_NP ;
-  youMascPerson = you_NP ;
-  youFemPerson = you_NP ;
+  youMascPerson = youPol_NP ;
+  youFemPerson = youPol_NP ;
   hePerson = he_NP ;
   shePerson = she_NP ;
 
@@ -93,7 +91,7 @@ lin
   haveChildrenProperty = mkVP have_V2 (mkNP aPl_Det (mkN "enfant")) ;
 
   feverIllness = mkNP a_Det (mkN "fièvre") ;
-  fluIllness = mkNP a_Det (mkN "grippe") ;
+  fluIllness = mkNP the_Det (mkN "grippe") ;
   headacheIllness = mkNP a_Det (mkN "mal de crâne") ;
   diarrheaIllness = mkNP a_Det (mkN "diarrhée") ;
   heartDiseaseIllness = mkNP a_Det (mkN "cardiopathie") ;
